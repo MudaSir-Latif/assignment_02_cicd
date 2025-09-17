@@ -1,0 +1,14 @@
+{
+  "name": "multi-branch-deploy-demo",
+  "version": "1.0.0",
+  "description": "Demo Node.js project for GitHub Actions matrix testing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "build": "echo 'Building project...' && mkdir -p dist && echo 'Build complete!' > dist/output.txt"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
