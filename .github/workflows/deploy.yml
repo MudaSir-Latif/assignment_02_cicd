@@ -23,36 +23,35 @@ concurrency:
 
 jobs:
   test:
-  runs-on: ubuntu-latest
-  strategy:
-    matrix:
-      node: [16, 18, 20]
-  steps:
-    - uses: actions/checkout@v4
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [16, 18, 20]
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
 
-    - run: npm install
+      - run: npm install
 
-    - name: Create test results directory
-      run: mkdir -p test-results
+      - name: Create test results directory
+        run: mkdir -p test-results
 
-    - name: Run tests
-      run: npm test -- --json --outputFile=test-results/results-${{ matrix.node }}.json
+      - name: Run tests
+        run: npm test -- --json --outputFile=test-results/results-${{ matrix.node }}.json
 
-    - name: Count tests
-      run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count.txt
+      - name: Count tests
+        run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count.txt
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ matrix.node }}
-        path: |
-          test-results/
-          test-count.txt
-
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.node }}
+          path: |
+            test-results/
+            test-count.txt
 
   build:
     runs-on: ubuntu-latest
@@ -61,14 +60,17 @@ jobs:
     environment: release
     steps:
       - uses: actions/checkout@v4
+
       - name: Download all test results
         uses: actions/download-artifact@v4
         with:
           path: test-results/
+
       - name: Concatenate test results
         run: |
           jq -s '.' test-results/**/results-*.json > test-results-summary.json
           cat test-results/**/test-count.txt > all-test-counts.txt
+
       - name: Compare test counts
         run: |
           TOTAL=$(awk '{s+=$1} END {print s}' all-test-counts.txt)
@@ -81,6 +83,7 @@ jobs:
             fi
           fi
           echo $TOTAL > last-total-tests.txt
+
       - name: Save test summary
         uses: actions/upload-artifact@v4
         with:
@@ -88,8 +91,10 @@ jobs:
           path: |
             test-results-summary.json
             last-total-tests.txt
+
       - name: Build
         run: npm run build --if-present
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
