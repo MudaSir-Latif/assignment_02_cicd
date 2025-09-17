@@ -23,26 +23,36 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16, 18, 20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-      - run: npm install
-      - run: npm test -- --outputFile=test-results/results-${{ matrix.node }}.json --json
-      - name: Count tests
-        run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.node }}
-          path: |
-            test-results/
-            test-count.txt
+  runs-on: ubuntu-latest
+  strategy:
+    matrix:
+      node: [16, 18, 20]
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+
+    - run: npm install
+
+    - name: Create test results directory
+      run: mkdir -p test-results
+
+    - name: Run tests
+      run: npm test -- --json --outputFile=test-results/results-${{ matrix.node }}.json
+
+    - name: Count tests
+      run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count.txt
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.node }}
+        path: |
+          test-results/
+          test-count.txt
+
 
   build:
     runs-on: ubuntu-latest
