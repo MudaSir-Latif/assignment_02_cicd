@@ -24,10 +24,10 @@ jobs:
         node-version: [16, 18, 20]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -43,7 +43,7 @@ jobs:
           echo "✅ Tests passed on Node.js ${{ matrix.node-version }}" > test-results/results-${{ matrix.node-version }}.txt
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-node-${{ matrix.node-version }}
           path: test-results/
@@ -60,10 +60,10 @@ jobs:
       name: release   # ✅ enables optional manual approval if configured in repo Settings > Environments
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -74,7 +74,7 @@ jobs:
         run: npm run build
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-dist
           path: dist/
