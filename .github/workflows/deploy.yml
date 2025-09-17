@@ -44,14 +44,14 @@ jobs:
         run: npm test -- --json --outputFile=test-results/results-${{ matrix.node }}.json
 
       - name: Count tests
-        run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count.txt
+        run: jq '.numTotalTests' test-results/results-${{ matrix.node }}.json > test-count-${{ matrix.node }}.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.node }}
           path: |
-            test-results/
-            test-count.txt
+            test-results/results-${{ matrix.node }}.json
+            test-count-${{ matrix.node }}.txt
 
   build:
     runs-on: ubuntu-latest
@@ -69,7 +69,7 @@ jobs:
       - name: Concatenate test results
         run: |
           jq -s '.' test-results/**/results-*.json > test-results-summary.json
-          cat test-results/**/test-count.txt > all-test-counts.txt
+          cat test-results/**/test-count-*.txt > all-test-counts.txt
 
       - name: Compare test counts
         run: |
@@ -83,10 +83,6 @@ jobs:
             fi
           fi
           echo $TOTAL > last-total-tests.txt
-
-      - name: Create test results-summary directory
-        run: mkdir -p test-results-summary
-
 
       - name: Save test summary
         uses: actions/upload-artifact@v4
