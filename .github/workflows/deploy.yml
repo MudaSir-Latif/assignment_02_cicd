@@ -61,17 +61,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Download all test results artifacts from matrix jobs
       - name: Download all test results
         uses: actions/download-artifact@v4
         with:
           path: test-results/
-          merge-multiple: true   # 👈 ensures files land directly in test-results/
+          merge-multiple: true
 
+      # Concatenate test results and counts
       - name: Concatenate test results
         run: |
           jq -s '.' test-results/results-*.json > test-results-summary.json
           cat test-results/test-count-*.txt > all-test-counts.txt
 
+      # Compare test counts
       - name: Compare test counts
         run: |
           TOTAL=$(awk '{s+=$1} END {print s}' all-test-counts.txt)
@@ -85,6 +88,7 @@ jobs:
           fi
           echo $TOTAL > last-total-tests.txt
 
+      # Save test summary
       - name: Save test summary
         uses: actions/upload-artifact@v4
         with:
@@ -93,9 +97,20 @@ jobs:
             test-results-summary.json
             last-total-tests.txt
 
+      # Build step
       - name: Build
         run: npm run build --if-present
 
+      # (Optional) Manual approval before publishing
+      - name: Wait for approval
+        if: always()
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          inputs: |
+            approve_build: true
+
+      # Upload build artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
