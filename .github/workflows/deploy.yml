@@ -2,9 +2,8 @@ name: MatrixTestAndBuild
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
     tags: ["v*.*.*"]
-  pull_request:
   workflow_dispatch:
     inputs:
       skip_build:
@@ -15,7 +14,7 @@ on:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: MatrixTestAndBuild
   cancel-in-progress: true
 
 jobs:
